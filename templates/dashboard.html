@@ -1,0 +1,372 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1 class="mb-4">
+    Dashboard
+</h1>
+
+<!-- Statistics Cards -->
+
+<div class="row">
+
+    <!-- Total Applications -->
+
+    <div class="col-md-4 mb-4">
+
+        <div class="card shadow border-0 bg-primary text-white">
+
+            <div class="card-body text-center">
+
+                <h5>Total Applications</h5>
+
+                <h2>{{ total_applications }}</h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Interviews -->
+
+    <div class="col-md-4 mb-4">
+
+        <div class="card shadow border-0 bg-warning">
+
+            <div class="card-body text-center">
+
+                <h5>Interviews</h5>
+
+                <h2>{{ interviews }}</h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Rejections -->
+
+    <div class="col-md-4 mb-4">
+
+        <div class="card shadow border-0 bg-danger text-white">
+
+            <div class="card-body text-center">
+
+                <h5>Rejected</h5>
+
+                <h2>{{ rejected }}</h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Second Row -->
+
+<div class="row">
+
+    <!-- Offers -->
+
+    <div class="col-md-4 mb-4">
+
+        <div class="card shadow border-0 bg-success text-white">
+
+            <div class="card-body text-center">
+
+                <h5>Offers</h5>
+
+                <h2>{{ offers }}</h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Joined -->
+
+    <div class="col-md-4 mb-4">
+
+        <div class="card shadow border-0 bg-dark text-white">
+
+            <div class="card-body text-center">
+
+                <h5>Joined</h5>
+
+                <h2>{{ joined }}</h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Pending -->
+
+    <div class="col-md-4 mb-4">
+
+        <div class="card shadow border-0 bg-info text-dark">
+
+            <div class="card-body text-center">
+
+                <h5>Pending</h5>
+
+                <h2>{{ pending }}</h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Recent Applications -->
+
+<div class="card shadow mt-4">
+
+    <div class="card-body">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <h3>
+                Recent Applications
+            </h3>
+
+            <a href="{% url 'job_list' %}"
+               class="btn btn-sm btn-primary">
+
+                View All
+
+            </a>
+
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead class="table-dark">
+
+                    <tr>
+
+                        <th>Company</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Date</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for job in recent_jobs %}
+
+                    <tr>
+
+                        <td>
+                            {{ job.company_name }}
+                        </td>
+
+                        <td>
+                            {{ job.role }}
+                        </td>
+
+                        <td>
+
+                            {% if job.status == 'Applied' %}
+
+                                <span class="badge bg-primary">
+                                    Applied
+                                </span>
+
+                            {% elif job.status == 'Interview Scheduled' %}
+
+                                <span class="badge bg-warning text-dark">
+                                    Interview
+                                </span>
+
+                            {% elif job.status == 'Rejected' %}
+
+                                <span class="badge bg-danger">
+                                    Rejected
+                                </span>
+
+                            {% elif job.status == 'Offer Received' %}
+
+                                <span class="badge bg-success">
+                                    Offer
+                                </span>
+
+                            {% elif job.status == 'Joined' %}
+
+                                <span class="badge bg-dark">
+                                    Joined
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-secondary">
+                                    {{ job.status }}
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+                            {{ job.application_date }}
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td colspan="4"
+                            class="text-center py-4">
+
+                            No applications found.
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Analytics Chart -->
+
+<div class="card shadow mt-5 mb-5">
+
+    <div class="card-body">
+
+        <h3 class="mb-4">
+            Application Analytics
+        </h3>
+
+        <canvas id="jobChart"></canvas>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    // Django Values
+
+    const totalApplications = Number('{{ total_applications }}');
+
+    const interviews = Number('{{ interviews }}');
+
+    const rejected = Number('{{ rejected }}');
+
+    const offers = Number('{{ offers }}');
+
+    const joined = Number('{{ joined }}');
+
+    const pending = Number('{{ pending }}');
+
+    // Chart Context
+
+    const ctx = document.getElementById('jobChart');
+
+    // Chart Initialization
+
+    new Chart(ctx, {
+
+        type: 'bar',
+
+        data: {
+
+            labels: [
+                'Applications',
+                'Interviews',
+                'Rejected',
+                'Offers',
+                'Joined',
+                'Pending'
+            ],
+
+            datasets: [{
+
+                label: 'Career Statistics',
+
+                data: [
+                    totalApplications,
+                    interviews,
+                    rejected,
+                    offers,
+                    joined,
+                    pending
+                ],
+
+                backgroundColor: [
+                    '#0d6efd',
+                    '#ffc107',
+                    '#dc3545',
+                    '#198754',
+                    '#212529',
+                    '#0dcaf0'
+                ],
+
+                borderWidth: 1
+
+            }]
+        },
+
+        options: {
+
+            responsive: true,
+
+            plugins: {
+
+                legend: {
+
+                    display: true
+
+                }
+
+            },
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true
+
+                }
+
+            }
+
+        }
+
+    });
+
+});
+
+</script>
+
+{% endblock %}

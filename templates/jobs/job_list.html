@@ -1,0 +1,364 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- Header -->
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <h2>
+        My Applications
+    </h2>
+
+    <a href="{% url 'add_job' %}"
+       class="btn btn-primary">
+        Add Application
+    </a>
+
+</div>
+
+<!-- Search & Filter Form -->
+
+<form method="GET"
+      class="row g-3 mb-4">
+
+    <!-- Search -->
+
+    <div class="col-md-4">
+
+        <input type="text"
+               name="search"
+               class="form-control"
+               placeholder="Search company..."
+               value="{{ search_query|default:'' }}">
+
+    </div>
+
+    <!-- Status Filter -->
+
+    <div class="col-md-3">
+
+        <select name="status"
+                class="form-select">
+
+            <option value="">
+                All Status
+            </option>
+
+            <option value="Applied"
+            {% if status_filter == 'Applied' %}
+            selected
+            {% endif %}>
+                Applied
+            </option>
+
+            <option value="Interview Scheduled"
+            {% if status_filter == 'Interview Scheduled' %}
+            selected
+            {% endif %}>
+                Interview Scheduled
+            </option>
+
+            <option value="Rejected"
+            {% if status_filter == 'Rejected' %}
+            selected
+            {% endif %}>
+                Rejected
+            </option>
+
+            <option value="Offer Received"
+            {% if status_filter == 'Offer Received' %}
+            selected
+            {% endif %}>
+                Offer Received
+            </option>
+
+            <option value="HR Round"
+            {% if status_filter == 'HR Round' %}
+            selected
+            {% endif %}>
+                HR Round
+            </option>
+
+            <option value="Joined"
+            {% if status_filter == 'Joined' %}
+            selected
+            {% endif %}>
+                Joined
+            </option>
+
+        </select>
+
+    </div>
+
+    <!-- Sorting -->
+
+    <div class="col-md-3">
+
+        <select name="sort"
+                class="form-select">
+
+            <option value="latest"
+            {% if sort_order != 'oldest' %}
+            selected
+            {% endif %}>
+                Latest First
+            </option>
+
+            <option value="oldest"
+            {% if sort_order == 'oldest' %}
+            selected
+            {% endif %}>
+                Oldest First
+            </option>
+
+        </select>
+
+    </div>
+
+    <!-- Buttons -->
+
+    <div class="col-md-2">
+
+        <button type="submit"
+                class="btn btn-dark w-100 mb-2">
+
+            Apply
+
+        </button>
+
+        <a href="{% url 'job_list' %}"
+           class="btn btn-secondary w-100">
+
+            Clear
+
+        </a>
+
+    </div>
+
+</form>
+
+<!-- Applications Table -->
+
+<div class="table-responsive">
+
+    <table class="table table-bordered table-hover align-middle shadow">
+
+        <thead class="table-dark">
+
+            <tr>
+
+                <th>Company</th>
+
+                <th>Role</th>
+
+                <th>Status</th>
+
+                <th>Date</th>
+
+                <th width="260">
+                    Actions
+                </th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for job in jobs %}
+
+            <tr>
+
+                <!-- Company -->
+
+                <td>
+                    {{ job.company_name }}
+                </td>
+
+                <!-- Role -->
+
+                <td>
+                    {{ job.role }}
+                </td>
+
+                <!-- Status -->
+
+                <td>
+
+                    {% if job.status == 'Applied' %}
+
+                        <span class="badge bg-primary">
+                            Applied
+                        </span>
+
+                    {% elif job.status == 'Interview Scheduled' %}
+
+                        <span class="badge bg-warning text-dark">
+                            Interview
+                        </span>
+
+                    {% elif job.status == 'Rejected' %}
+
+                        <span class="badge bg-danger">
+                            Rejected
+                        </span>
+
+                    {% elif job.status == 'Offer Received' %}
+
+                        <span class="badge bg-success">
+                            Offer
+                        </span>
+
+                    {% elif job.status == 'HR Round' %}
+
+                        <span class="badge bg-info text-dark">
+                            HR Round
+                        </span>
+
+                    {% elif job.status == 'Joined' %}
+
+                        <span class="badge bg-dark">
+                            Joined
+                        </span>
+
+                    {% else %}
+
+                        <span class="badge bg-secondary">
+                            {{ job.status }}
+                        </span>
+
+                    {% endif %}
+
+                </td>
+
+                <!-- Date -->
+
+                <td>
+                    {{ job.application_date }}
+                </td>
+
+                <!-- Actions -->
+
+                <td>
+
+                    <div class="d-flex gap-2 flex-wrap">
+
+                        <!-- View -->
+
+                        <a href="{% url 'job_detail' job.id %}"
+                           class="btn btn-sm btn-info text-white">
+
+                            View
+
+                        </a>
+
+                        <!-- Edit -->
+
+                        <a href="{% url 'edit_job' job.id %}"
+                           class="btn btn-sm btn-warning">
+
+                            Edit
+
+                        </a>
+
+                        <!-- Delete -->
+
+                        <a href="{% url 'delete_job' job.id %}"
+                           class="btn btn-sm btn-danger">
+
+                            Delete
+
+                        </a>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+            {% empty %}
+
+            <tr>
+
+                <td colspan="5"
+                    class="text-center py-4">
+
+                    No matching applications found.
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}
+<!-- Pagination -->
+
+<nav class="mt-4">
+
+    <ul class="pagination justify-content-center">
+
+        <!-- Previous -->
+
+        {% if page_obj.has_previous %}
+
+        <li class="page-item">
+
+            <a class="page-link"
+               href="?page={{ page_obj.previous_page_number }}">
+
+                Previous
+
+            </a>
+
+        </li>
+
+        {% endif %}
+
+        <!-- Page Numbers -->
+
+        {% for num in page_obj.paginator.page_range %}
+
+        <li class="page-item
+        {% if page_obj.number == num %}
+        active
+        {% endif %}">
+
+            <a class="page-link"
+               href="?page={{ num }}">
+
+                {{ num }}
+
+            </a>
+
+        </li>
+
+        {% endfor %}
+
+        <!-- Next -->
+
+        {% if page_obj.has_next %}
+
+        <li class="page-item">
+
+            <a class="page-link"
+               href="?page={{ page_obj.next_page_number }}">
+
+                Next
+
+            </a>
+
+        </li>
+
+        {% endif %}
+
+    </ul>
+
+</nav>

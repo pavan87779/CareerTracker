@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-md-6">
+
+        <div class="card shadow p-4">
+
+            <h2 class="text-danger text-center mb-4">
+                Delete Application
+            </h2>
+
+            <p class="text-center">
+
+                Are you sure you want to delete:
+
+                <strong>
+                    {{ job.company_name }} - {{ job.role }}
+                </strong>
+
+            </p>
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                <button type="submit"
+                        class="btn btn-danger w-100">
+                    Confirm Delete
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
